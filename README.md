@@ -16,8 +16,8 @@ To run the app locally, follow these steps:
 Clone the repository:
 # Install the required libraries:
 Ensure you have Python installed. Then, install the necessary packages using pip:
-### git clone https://github.com/Ali-Sina-255/
-### cd Weather-Forecast
+### [git clone https://github.com/Ali-Sina-255/](https://github.com/Ali-Sina-255/Django-App-Interview-Task.git)
+### cd Django-App-Interview-Task
 ### python3 - m venv venv 
 ### source venv/bin/activate
 #### pip install -r requirements.txt
