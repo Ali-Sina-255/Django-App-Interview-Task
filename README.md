@@ -1,16 +1,4 @@
 # Django-App-Interview-Task
-### Task: Build a REST API for a "Job Processing System" where users can register
-using their email, verify their email using an OTP, and submit jobs that are
-processed asynchronously. The system should handle job creation, scheduling,
-and processing through a queue, and include reporting on job statuses and
-results.
-User should be able to comment on a job, another field to propose a deadline and
-field to offer his fee for the task (For example: I can complete this job very well,
-2024/8/25, 80$). The poster should be able to select a bidder. The user should be
-able to see his assigned jobs.
-The OTP email should be sent in the background so the user must not be kept
-waiting.
-
 ## Installation
 To run the app locally, follow these steps:
 Clone the repository:
@@ -22,7 +10,19 @@ Ensure you have Python installed. Then, install the necessary packages using pip
 ### source venv/bin/activate
 #### pip install -r requirements.txt
 
-#### Requirements
+Project Overview
+### Task: Build a REST API for a "Job Processing System" where users can register
+using their email, verify their email using an OTP, and submit jobs that are
+processed asynchronously. The system should handle job creation, scheduling,
+and processing through a queue, and include reporting on job statuses and
+results.
+User should be able to comment on a job, another field to propose a deadline and
+field to offer his fee for the task (For example: I can complete this job very well,
+2024/8/25, 80$). The poster should be able to select a bidder. The user should be
+able to see his assigned jobs.
+The OTP email should be sent in the background so the user must not be kept
+waiting.
+Requirements
 1. User Authentication with Email Verification:
 Implement user registration using email.
 Generate and send a One-Time Password (OTP) to the user's email upon
@@ -54,7 +54,7 @@ POST /api/verify-email/
 POST /api/login/
 - Verify the user's email with the OTP sent.
 - Login and obtain a token (only if the email is verified).
-### Job Management:
+Job Management:
 GET /api/jobs/
 - List all jobs for the authenticated user (only for verified
 users).
@@ -90,12 +90,12 @@ Instructions for Candidates
 1. Setup: Provide a Django project setup with necessary dependencies
 (including Celery or RQ, Redis, etc.).
 2. Time Limit: Allocate 8-10 days for completion.
-### 3. Expectations:
+3. Expectations:
 Properly structured views, serializers, models, and OTP handling.
 Email OTP sending mechanism (using a library like Django’s send_mail or
 third-party services).
 Robust authentication flow with email verification.
 Handling of asynchronous task processing, queueing, and scheduling.
 Comprehensive unit tests.
-### 4. Submission: Ask for a GitHub repository submission with clear setup
+4. Submission: Ask for a GitHub repository submission with clear setup
 instructions.
