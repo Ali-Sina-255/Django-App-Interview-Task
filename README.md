@@ -10,6 +10,18 @@ field to offer his fee for the task (For example: I can complete this job very w
 able to see his assigned jobs.
 The OTP email should be sent in the background so the user must not be kept
 waiting.
+
+## Installation
+To run the app locally, follow these steps:
+Clone the repository:
+# Install the required libraries:
+Ensure you have Python installed. Then, install the necessary packages using pip:
+### git clone https://github.com/Ali-Sina-255/
+### cd Weather-Forecast
+### python3 - m venv venv 
+### source venv/bin/activate
+#### pip install -r requirements.txt
+
 #### Requirements
 1. User Authentication with Email Verification:
 Implement user registration using email.
