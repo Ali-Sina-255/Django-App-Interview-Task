@@ -96,7 +96,14 @@ REST_FRAMEWORK = {
 SIMPLE_JWT = {
    'AUTH_HEADER_TYPES': ('JWT',),
 }
+# Custom DJoer
 
+DJOSER = {
+    'SERIALIZERS':{
+        'user_create':'api.serializers.UserCreateSerializer'
+    }
+    
+}
 
 # Password validation
 # https://docs.djangoproject.com/en/5.1/ref/settings/#auth-password-validators
