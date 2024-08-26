@@ -1,9 +1,12 @@
-from djoser.serializers import UserCreateSerializer  as BaseUserCreateSerializer
+from rest_framework import serializers
+from .models import Job
 
-class UserCreateSerializer(BaseUserCreateSerializer):
-    class Meta(BaseUserCreateSerializer.Meta):
-        fields = ['id','first_name','last_name','email','password']
+class JobSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Job
+        fields = ['id', 'name', 'scheduled_time', 'status', 'created_at', 'updated_at']
 
-
-
-    "access": ""
+class JobResultSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Job
+        fields = ['id', 'result']

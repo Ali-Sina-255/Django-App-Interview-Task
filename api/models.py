@@ -1,29 +1,32 @@
 from django.db import models
-from django.conf import settings
+from django.contrib.auth import get_user_model
+from django.utils import timezone
 
-
-STATUS_CHOICES = (
-    ("Pending", "pending"),
-    ("in-progress", "in-progress"),
-    ("completed", "completed,"),
-    ("failed", "failed),"),
-)
-
+User = get_user_model()
 
 class Job(models.Model):
-    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+    STATUS_CHOICES = [
+        ('pending', 'Pending'),
+        ('in_progress', 'In Progress'),
+        ('completed', 'Completed'),
+        ('canceled', 'Canceled'),
+    ]
+    
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='jobs')
     name = models.CharField(max_length=255)
-    description = models.TextField()
-    created_at = models.DateTimeField(auto_now_add=True)
     scheduled_time = models.DateTimeField()
-    status = models.CharField(max_length=100, choices=STATUS_CHOICES)
+    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='pending')
+    result = models.TextField(null=True, blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    def cancel(self):
+        if self.status in ['pending', 'in_progress']:
+            self.status = 'canceled'
+            self.save()
+
+    def is_completed(self):
+        return self.status == 'completed'
 
     def __str__(self):
         return self.name
-
-
-class JobResult(models.Model):
-    job = models.OneToOneField(Job, on_delete=models.CASCADE)
-    output = models.TextField(null=True)
-    error_message = models.TextField(null=True)
-    completed_at = models.DateTimeField(null=True)
