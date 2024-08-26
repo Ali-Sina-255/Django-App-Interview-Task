@@ -7,13 +7,17 @@ from django.utils.http import urlsafe_base64_decode
 from . tasks import send_otp_verification_email_task
 from django.contrib.sites.shortcuts import get_current_site
 
+from .tasks import send_verification_email_task 
 from django.contrib import messages
 from . forms import UserRegistrationForm
-from . utilis import send_verification_email,send_otp_verification_email
+from . utils import send_verification_email,send_otp_verification_email
 from .helper import send_otp
 from datetime import datetime
 import pyotp
-from core.models import User
+from accounts.models import User
+from django.contrib.auth import get_user_model
+from django.core.mail import EmailMessage
+
 
 
 import logging
@@ -23,9 +27,12 @@ def home_view(request):
     return render(request, 'accounts/home.html')
 
 
+
+User = get_user_model()
+
 def user_registration(request):
     if request.user.is_authenticated:
-        messages.warning(request, "your are already registered")
+        messages.warning(request, "You are already registered")
         return redirect("home")
     
     elif request.method == "POST":
@@ -35,6 +42,8 @@ def user_registration(request):
             last_name = form.cleaned_data["last_name"]
             email = form.cleaned_data["email"]
             password = form.cleaned_data["password"]
+            
+            # Create and save the user
             user = User.objects.create_user(
                 first_name=first_name,
                 last_name=last_name,
@@ -42,19 +51,25 @@ def user_registration(request):
                 password=password,
             )
             user.save()
-            # send_verification_email
-            mail_subject = " Please Activate your Registration "
+
+            # Send verification email asynchronously using Celery
+            mail_subject = "Please Activate your Registration"
             email_template = "accounts/email/verification_email.html"
-            send_verification_email(request, user, mail_subject, email_template)
-            messages.success(request, "Your registration was successfully")
+            
+            # Trigger Celery task
+            send_verification_email_task.delay(
+                user.pk, mail_subject, email_template, request.get_host()
+            )
+
+            messages.success(request, "Your registration was successful. Please check your email to activate your account.")
             return redirect("login")
         else:
             print(form.errors)
     else:
         form = UserRegistrationForm()
+    
     context = {"form": form}
     return render(request, "accounts/register.html", context)
-
 
 def activate(request, uidb64, token):
      # activated the user by settings the is_active to true
@@ -88,10 +103,9 @@ def login_view(request):
         password = request.POST['password']
         user = authenticate(request, email=email, password=password)
         if user is not None:
-            # Generate OTP and store it in the session
+            
             otp = send_otp(request)
             
-            # Prepare email subject and template
             email_subject = 'Your OTP Code'
             email_template = "accounts/email/otp_email.html"
             

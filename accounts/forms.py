@@ -1,6 +1,5 @@
-from core.models import User, UserProfile
+from . models import User, UserProfile
 from django import forms
-
 
 class UserRegistrationForm(forms.ModelForm):
     password = forms.CharField(widget=forms.PasswordInput())

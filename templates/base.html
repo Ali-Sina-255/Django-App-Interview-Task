@@ -1,0 +1,83 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>FoodOnline</title>
+    <!-- Google Font Family Link Start -->
+    <link
+      rel="stylesheet"
+      type="text/css"
+      href="https://fonts.googleapis.com/css?family=Montserrat:400,700"
+    />
+    <link
+      rel="stylesheet"
+      type="text/css"
+      href="https://fonts.googleapis.com/css?family=Open+Sans:400,700,800"
+    />
+    <!-- Google Font Family Link End -->
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css"
+      integrity="sha512-SnH5WK+bZxgPHs44uWIX+LLJAJ9/2PkPKZ5QiAj6Ta86w+fsb2TkcmfRyVX3pBnMFcV7oQPJkl9QevSCWr3W6A=="
+      crossorigin="anonymous"
+      referrerpolicy="no-referrer"
+    />
+    <!-- CSS -->
+    <link href="{% static 'assets/css/iconmoon.css' %}" rel="stylesheet" />
+    <link href="{% static 'assets/css/style.css' %}" rel="stylesheet" />
+    <link href="{% static 'assets/css/ratting.css' %}" rel="stylesheet" />
+    <link
+      href="{% static 'assets/css/cs-foodbakery-plugin.css' %}"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+    <link
+      rel="stylesheet"
+      href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css"
+    />
+    <link
+      href="{% static 'assets/css/bootstrap-slider.css' %}"
+      rel="stylesheet"
+    />
+    <link href="{% static 'assets/css/custom.css' %}" rel="stylesheet" />
+    
+    <!-- JAVASCRIPT -->
+    {% comment %} DataTable Pluing  {% endcomment %}
+    <link rel="stylesheet" href="//cdn.datatables.net/2.1.2/css/dataTables.dataTables.min.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+    <script src="{% static 'assets/js/modernizr.js' %}"></script>
+    <script src="{% static 'assets/js/bootstrap.js' %}"></script>
+    <script src="{% static 'assets/js/custom.js' %}"></script>
+    <script src="//cdn.datatables.net/2.1.2/js/dataTables.min.js"></script>
+    <script>
+      $(document).ready(function() {
+        $('#my_order').DataTable();
+      });
+    </script>
+  <!-- Include the PayPal JavaScript SDK -->
+  {% comment %} <script src="https://www.paypal.com/sdk/js?client-id={{ PAYPAL_CLIENT_ID }}&currency=USD"></script> {% endcomment %}
+  <script src="https://www.paypal.com/sdk/js?client-id={{PAYPAL_CLIENT_ID}}"></script>
+
+    <style>
+      body,
+      .main-section p,
+      .mce-content-body p {
+        font: Normal 14px/24px "Open Sans", sans-serif;
+        letter-spacing: 0px;
+        text-transform: none;
+        color: #515151 !important;
+      }
+    </style>
+    
+  </head>
+
+  <body>
+    {% include 'includes/navbar.html' %} {% block content %} {% endblock %}
+    {%include 'includes/footer.html' %}
+
+    <script src="https://unpkg.com/sweetalert/dist/sweetalert.min.js"></script>
+  </body>
+</html>
