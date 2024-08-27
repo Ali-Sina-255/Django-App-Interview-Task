@@ -58,7 +58,7 @@ def user_registration(request):
             )
 
             messages.success(request, "Your registration was successful. Please check your email to activate your account.")
-            return redirect("login")
+            return redirect("login-user")
         else:
             print(form.errors)
     else:
@@ -80,7 +80,7 @@ def activate(request, uidb64, token):
         user.is_email_verified = True
         user.save()
         messages.success(request, "congratulation your account is activated")
-        return redirect("login")
+        return redirect("login-user")
     else:
         messages.error(request, "Invalid Activation links")
         return redirect("register_user")
@@ -125,6 +125,7 @@ def login_view(request):
     }
     return render(request, 'accounts/login.html', context)
 
+
 def otp_views(request):
     error_message = None
     if request.method == 'POST':
@@ -144,7 +145,6 @@ def otp_views(request):
                         try:
                             user = User.objects.get(email=email)
                             login(request, user)
-
                             # Clear OTP data from session
                             del request.session['otp_secret_key']
                             del request.session['otp_valid_date']
@@ -162,6 +162,7 @@ def otp_views(request):
 
     context = {'error_message': error_message}
     return render(request, 'accounts/otp.html', context)
+
 
 
 

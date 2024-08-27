@@ -1,0 +1,88 @@
+
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container mt-4">
+     <h1 class="mb-4">Job Details</h1>
+
+        <!-- Job Details -->
+        <div class="card mb-4">
+            <div class="card-header">
+                <h4 class="card-title">{{ job.name }}</h4>
+            </div>
+            <div class="card-body">
+                <p><strong>Description:</strong> {{ job.description|default:"N/A" }}</p>
+                <p><strong>Scheduled Time:</strong> {{ job.scheduled_time|date:"Y-m-d H:i" }}</p>
+                <p><strong>Status:</strong>
+                    {% if job.status == 'completed' %}
+                        <span class="badge badge-success">Completed</span>
+                    {% elif job.status == 'in_progress' %}
+                        <span class="badge badge-warning">In Progress</span>
+                    {% elif job.status == 'failed' %}
+                        <span class="badge badge-danger">Failed</span>
+                    {% elif job.status == 'canceled' %}
+                        <span class="badge badge-secondary">Canceled</span>
+                    {% else %}
+                        <span class="badge badge-primary">Pending</span>
+                    {% endif %}
+                </p>
+                <p><strong>Result:</strong> {{ job.result|default:"N/A" }}</p>
+            </div>
+        </div>
+
+        <!-- Job Result -->
+        {% if job.jobresult %}
+        <div class="card mb-4">
+            <div class="card-header">
+                <h4 class="card-title">Job Result</h4>
+            </div>
+            <div class="card-body">
+                <p><strong>Output:</strong> {{ job.jobresult.output|default:"N/A" }}</p>
+                <p><strong>Error Message:</strong> {{ job.jobresult.error_message|default:"N/A" }}</p>
+                <p><strong>Completed At:</strong> {{ job.jobresult.completed_at|date:"Y-m-d H:i"|default:"N/A" }}</p>
+            </div>
+        </div>
+        {% else %}
+        <div class="alert alert-info" role="alert">
+            No result available for this job.
+        </div>
+        {% endif %}
+
+        <!-- Commands List -->
+        <div class="card mb-4">
+            <div class="card-header">
+                <h4 class="card-title">Commands</h4>
+            </div>
+            <div class="card-body">
+                <ul class="list-group">
+                    {% for command in job.command_set.all %}
+                        <li class="list-group-item">
+                            <p>{{ command.body|default:"No content" }}</p>
+                            <small class="text-muted">Created at: {{ command.created_at|date:"Y-m-d H:i" }}</small>
+                        </li>
+                    {% empty %}
+                        <li class="list-group-item">No commands available.</li>
+                    {% endfor %}
+                </ul>
+            </div>
+        </div>
+
+        <!-- Add Command Form -->
+        <div class="card mb-4">
+            <div class="card-header">
+                <h4 class="card-title">Add Command</h4>
+            </div>
+            <div class="card-body">
+                <form method="post" action="{% url 'job-detail-list' job.id %}">
+                    {% csrf_token %}
+                    <div class="form-group">
+                        <label for="body">Command:</label>
+                        <textarea id="body" name="body" class="form-control" rows="3" required></textarea>
+                    </div>
+                    <button type="submit" class="btn btn-primary">Submit</button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+{% endblock %}

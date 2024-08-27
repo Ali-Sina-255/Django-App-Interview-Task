@@ -40,7 +40,6 @@ INSTALLED_APPS = [
     # Custom App
     'rest_framework',
     'djoser',
-    "core.apps.CoreConfig",
     "accounts.apps.AccountsConfig",
     "api.apps.ApiConfig",
     

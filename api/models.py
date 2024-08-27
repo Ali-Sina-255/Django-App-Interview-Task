@@ -1,7 +1,7 @@
 from django.db import models
 from django.contrib.auth import get_user_model
 from django.utils import timezone
-
+from accounts.models import UserProfile
 
 User = get_user_model()
 
@@ -43,3 +43,13 @@ class JobResult(models.Model):
 
     def __str__(self):
         return f'Result for {self.job.name}'
+
+class Command(models.Model):
+    owner = models.ForeignKey(UserProfile, on_delete=models.CASCADE, null=True)
+    job = models.ForeignKey(Job, on_delete=models.CASCADE)
+    body = models.TextField(null=True, blank=True)
+    updated_at = models.DateTimeField(auto_now=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return self.body[:50]

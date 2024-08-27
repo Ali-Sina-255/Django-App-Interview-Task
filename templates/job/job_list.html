@@ -1,0 +1,48 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container">
+	<h1 class="mb-4">Jobs List</h1>
+
+        <!-- Jobs Table -->
+        <table class="table table-striped">
+            <thead>
+                <tr>
+                    <th>Name</th>
+                    <th>Description</th>
+                    <th>Scheduled Time</th>
+                    <th>Status</th>
+                    <th>Result</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for job in jobs %}
+                <tr>
+                   <td><a href="{% url 'job-detail-list' job.pk %}">{{ job.name }}</a></td>
+                    <td>{{ job.description|default:"N/A" }}</td>
+                    <td>{{ job.scheduled_time|date:"Y-m-d H:i" }}</td>
+                    <td>
+                        {% if job.status == 'completed' %}
+                            <span class="badge badge-success">Completed</span>
+                        {% elif job.status == 'in_progress' %}
+                            <span class="badge badge-warning">In Progress</span>
+                        {% elif job.status == 'failed' %}
+                            <span class="badge badge-danger">Failed</span>
+                        {% elif job.status == 'canceled' %}
+                            <span class="badge badge-secondary">Canceled</span>
+                        {% else %}
+                            <span class="badge badge-primary">Pending</span>
+                        {% endif %}
+                    </td>
+                    <td>{{ job.result|default:"N/A" }}</td>
+                   
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="6">No jobs available.</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+</div>
+{% endblock %}
