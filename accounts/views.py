@@ -16,12 +16,8 @@ from datetime import datetime
 import pyotp
 from accounts.models import User
 from django.contrib.auth import get_user_model
-from django.core.mail import EmailMessage
 
 
-
-import logging
-logger = logging.getLogger(__name__)
 
 def home_view(request):
     return render(request, 'accounts/home.html')
@@ -134,12 +130,13 @@ def otp_views(request):
     if request.method == 'POST':
         otp = request.POST.get('otp')
         email = request.session.get('email')
+        
         otp_secret_key = request.session.get('otp_secret_key')
         otp_valid_date = request.session.get('otp_valid_date')
+        
         if otp_secret_key and otp_valid_date:
             try:
                 valid_date = datetime.fromisoformat(otp_valid_date)
-                logger.debug(f"Valid Date: {valid_date}, Current Date: {datetime.now()}")
                 
                 if valid_date > datetime.now():
                     totp = pyotp.TOTP(otp_secret_key, interval=60)

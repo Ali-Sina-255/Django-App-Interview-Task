@@ -1,3 +1,6 @@
 from django.shortcuts import render
+from .serializers import UserCreateSerializer
 
-# Create your views here.
+class UserProfileSerializerViewSet(ModelViewSet):
+    pass
+  

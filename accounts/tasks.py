@@ -26,10 +26,10 @@ def send_otp_verification_email_task(user_id, email_subject, email_template, otp
     # Send the email
     send_mail(
         subject=email_subject,
-        message='',  # No plain text message
-        from_email=None,  # Use default from email in settings
-        recipient_list=[user.email],  # List of recipients
-        html_message=message  # HTML content of the email
+        message='',  
+        from_email=None,  
+        recipient_list=[user.email],
+        html_message=message 
     )
     
 
@@ -53,8 +53,8 @@ def send_verification_email_task(user_id, email_subject, email_template, domain)
     mail = EmailMessage(
         subject=email_subject,
         body=message,
-        from_email=None,  # Optional: set a default from email
+        from_email=None, 
         to=[to_email]
     )
-    mail.content_subtype = 'html'  # Send as HTML
+    mail.content_subtype = 'html' 
     mail.send()

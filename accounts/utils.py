@@ -38,3 +38,6 @@ def send_otp_verification_email(request, user, email_subject, email_template, ot
     mail = EmailMessage(email_subject, message, to=[to_email])
     mail.content_subtype = 'html'
     mail.send()
+    
+
+
