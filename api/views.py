@@ -1,14 +1,20 @@
 
 from django.contrib.auth  import get_user_model
 from django.shortcuts import render, redirect, get_object_or_404
+
 from django.contrib.auth.decorators import login_required
 from django.utils import timezone
+from django_filters.rest_framework import DjangoFilterBackend
+
 from rest_framework import generics, permissions
 from rest_framework_simplejwt.authentication import JWTAuthentication
 from rest_framework.exceptions import PermissionDenied, NotFound
 from rest_framework.response import Response
+from rest_framework.filters import SearchFilter, OrderingFilter
+
 from .models import Job
 from . forms import CommandForm
+from .filters import JobFilter
 from .serializers import JobSerializer, JobResultSerializer, RegisterSerializer, VerifyEmailSerializer,LoginSerializer
 from rest_framework_simplejwt.views import TokenObtainPairView
 from rest_framework import generics,status
@@ -16,19 +22,24 @@ from accounts.tasks import send_verification_email_task , execute_command_task
 
 
 
-
 class JobListCreateView(generics.ListCreateAPIView):
-	serializer_class = JobSerializer
-	permission_classes = [permissions.IsAuthenticated]
-	authentication_classes = [JWTAuthentication]
+    serializer_class = JobSerializer
+    permission_classes = [permissions.IsAuthenticated]
+    authentication_classes = [JWTAuthentication]
+    filter_backends = [DjangoFilterBackend, SearchFilter, OrderingFilter]
+    filterset_fields = ['status'] 
+    filterset_class = JobFilter
+    search_fields = ['name','description','stats']
+    ordering_fields = ['name','price','scheduled_time','updated_at']
+    
+    def get_queryset(self):
+        if not self.request.user.is_email_verified:
+            raise PermissionDenied("User not verified.")
+        return Job.objects.filter(user=self.request.user)
 
-	def get_queryset(self):
-		if not self.request.user.is_email_verified:
-			raise PermissionDenied("User not verified.")
-		return Job.objects.filter(user=self.request.user)
+    def perform_create(self, serializer):
+        serializer.save(user=self.request.user)
 
-	def perform_create(self, serializer):
-		serializer.save(user=self.request.user)
 
 
 class JobDetailView(generics.RetrieveDestroyAPIView):
@@ -44,6 +55,7 @@ class JobDetailView(generics.RetrieveDestroyAPIView):
 			job.cancel()
 			return Response({"detail": "Job canceled successfully."}, status=204)
 		return Response({"detail": "Cannot cancel a completed job."}, status=400)
+
 
 
 class JobUpdateView(generics.UpdateAPIView):
@@ -65,6 +77,7 @@ class JobUpdateView(generics.UpdateAPIView):
 		return super().update(request, *args, **kwargs)
 
 
+
 class JobResultView(generics.RetrieveAPIView):
 	serializer_class = JobResultSerializer
 	permission_classes = [permissions.IsAuthenticated]
@@ -77,6 +90,7 @@ class JobResultView(generics.RetrieveAPIView):
 			return job.jobresult  
 		except JobResult.DoesNotExist:
 			raise NotFound("Job result not available.")
+
 
 
 class RegisterView(generics.CreateAPIView):

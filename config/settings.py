@@ -29,6 +29,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     # Custom App
     "django_browser_reload",
+    "django_filters",
     'rest_framework',
     'djoser',
     "accounts.apps.AccountsConfig",

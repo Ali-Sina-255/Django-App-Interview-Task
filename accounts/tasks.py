@@ -82,3 +82,22 @@ def execute_command_task(command_id):
     except Exception as e:
 
         print(f"An error occurred while executing the command: {e}")
+
+
+
+@shared_task
+def send_reset_password_email_task(domain, user_id, token):
+    from django.contrib.auth import get_user_model
+    User = get_user_model()
+    user = User.objects.get(pk=user_id)
+    email_subject = 'Reset your password'
+    message = render_to_string('accounts/email/reset_password_email.html', {
+        'user': user,
+        'domain': domain,
+        'uid': urlsafe_base64_encode(force_bytes(user.pk)),
+        'token': token,
+    })
+    to_email = user.email
+    mail = EmailMessage(email_subject, message, to=[to_email])
+    mail.content_subtype = 'html'
+    mail.send()

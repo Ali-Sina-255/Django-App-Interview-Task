@@ -4,13 +4,13 @@ from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.models import User
 from django.contrib.auth.tokens import default_token_generator
 from django.utils.http import urlsafe_base64_decode
-from . tasks import send_otp_verification_email_task
+from . tasks import send_otp_verification_email_task, send_reset_password_email_task
 from django.contrib.sites.shortcuts import get_current_site
 
 from .tasks import send_verification_email_task 
 from django.contrib import messages
 from . forms import UserRegistrationForm
-from . utils import send_verification_email,send_otp_verification_email
+from . utils import send_verification_email,send_otp_verification_email, send_reset_password_email
 from .helper import send_otp
 from datetime import datetime
 import pyotp
@@ -23,7 +23,6 @@ from django.contrib.auth import get_user_model
 
 def home_view(request):
     return render(request, 'accounts/home.html')
-
 
 
 User = get_user_model()
@@ -166,13 +165,14 @@ def otp_views(request):
     context = {'error_message': error_message}
     return render(request, 'accounts/otp.html', context)
 
+
 def forgot_password_view(request):
     if request.method == "POST":
         email = request.POST["email"]
         if User.objects.filter(email=email).exists():
             user = User.objects.get(email__iexact=email)
             mail_subject = "Reset your password"
-            email_template = "account/email/reset_password_email.html"
+            email_template = "accounts/email/reset_password_email.html"
             send_verification_email(request, user, mail_subject, email_template)
             send_reset_password_email(request, user)
             messages.success(
@@ -183,7 +183,8 @@ def forgot_password_view(request):
             messages.error(request, "Account does not exist")
             return redirect("forgot_password")
 
-    return render(request, "account/forgot_password.html")
+    return render(request, "accounts/forgot_password.html")
+
 
 
 def reset_password_validate_view(request, uidb64, token):
@@ -199,7 +200,7 @@ def reset_password_validate_view(request, uidb64, token):
         return redirect("reset_password")
     else:
         messages.error(request, "this link has been expired")
-        return redirect("my_account")
+        return redirect("login-user")
 
 
 def reset_password_view(request):
@@ -218,7 +219,7 @@ def reset_password_view(request):
         else:
             messages.error(request, "password dont match")
             return redirect("reset_password")
-    return render(request, "account/reset_password.html")
+    return render(request, "accounts/reset_password.html")
 
 
 

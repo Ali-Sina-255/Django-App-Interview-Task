@@ -8,6 +8,8 @@ import random
 
 
 class JobSerializer(serializers.ModelSerializer):
+    price = serializers.DecimalField(max_digits=10, decimal_places=2)
+
     class Meta:
         model = Job
         fields = ['id', 'name', 'price', 'scheduled_time', 'status', 'created_at', 'updated_at']
@@ -65,8 +67,3 @@ class LoginSerializer(TokenObtainPairSerializer):
             raise serializers.ValidationError("Email is not verified.")
         return super().validate(attrs)
 
-
-# {
-    # "refresh": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoicmVmcmVzaCIsImV4cCI6MTcyNDg0MTA3NCwiaWF0IjoxNzI0NzU0Njc0LCJqdGkiOiIwMDgzYTY3OGYxZGU0MGRlOGZiMTNmMGNhMWRiMmRiOSIsInVzZXJfaWQiOjF9.0_QNqTbkSYksf4OamD7ksrWLxrRdftqltDa_yMoZcX8",
-    # "access": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzI0NzU0OTc0LCJpYXQiOjE3MjQ3NTQ2NzQsImp0aSI6ImMwNDhmY2VjN2Y4NzRjYmZhMzczNGVkYzM0NjRjMGRmIiwidXNlcl9pZCI6MX0.SiyaH3vapZHDeeAtLZmw0N42N3pDmw-Xq-59byEeza8"
-# }

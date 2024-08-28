@@ -38,8 +38,8 @@
           </div>
           <!-- Forgot password -->
           <div class="flex mt-7 justify-between  text-blue-600 mb-5">
-            <a href=""><p>Don't have an account?</p></a>
-            <a href=""><p>Forgot password?</p></a>
+            <a href="{% url 'register_user' %}"><p>Don't have an account?</p></a>
+            <a href="{% url 'forgot_password' %}"><p>Forgot password?</p></a>
           </div>
         </form>
         {% include 'includes/messages.html' %}
