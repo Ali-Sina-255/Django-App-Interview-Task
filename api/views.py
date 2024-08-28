@@ -11,7 +11,9 @@ from .models import Job
 from . forms import CommandForm
 from .serializers import JobSerializer, JobResultSerializer, RegisterSerializer, VerifyEmailSerializer,LoginSerializer
 from rest_framework_simplejwt.views import TokenObtainPairView
-from rest_framework import generics
+from rest_framework import generics,status
+from accounts.tasks import send_verification_email_task , execute_command_task
+
 
 
 
@@ -86,31 +88,29 @@ class RegisterView(generics.CreateAPIView):
 class VerifyEmailView(generics.GenericAPIView):
     serializer_class = VerifyEmailSerializer
     User = get_user_model()
+
     def post(self, request, *args, **kwargs):
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
-        email = serializer.validated_data['email']
-        otp_code = serializer.validated_data['otp_code']
+
+        email = serializer.validated_data.get('email')
 
         try:
-            user = User.objects.get(email=email)
-            otp_record = OTP.objects.filter(user=user, otp_code=otp_code, is_used=False, expires_at__gt=timezone.now()).first()
+            user = self.User.objects.get(email=email)
+            if not user.is_email_verified:
+                # Send verification email
+                send_verification_email_task.delay(
+                    user_id=user.id,
+                    email_subject="Verify Your Email Address",
+                    email_template="accounts/email/verification_email.html",
+                    domain="localhost://8000"  
+                )
 
-            if otp_record:
-                # Mark the OTP as used
-                otp_record.is_used = True
-                otp_record.save()
-
-                # Mark the email as verified
-                user.is_email_verified = True
-                user.is_active = True  # Activate user upon verification
-                user.save()
-
-                return Response({"detail": "Email verified successfully."}, status=status.HTTP_200_OK)
+                return Response({"detail": "Verification email sent successfully."}, status=status.HTTP_200_OK)
             else:
-                return Response({"detail": "OTP not found or expired."}, status=status.HTTP_400_BAD_REQUEST)
+                return Response({"detail": "Email is already verified."}, status=status.HTTP_200_OK)
 
-        except User.DoesNotExist:
+        except self.User.DoesNotExist:
             return Response({"detail": "User does not exist."}, status=status.HTTP_404_NOT_FOUND)
 
 
@@ -127,7 +127,7 @@ def all_jobs(request):
 
 
 @login_required
-def job_detail(request, pk):
+def job_detail_view(request, pk):
     job = get_object_or_404(Job, pk=pk)
     
     if request.method == 'POST':
@@ -135,9 +135,12 @@ def job_detail(request, pk):
         if form.is_valid():
             command = form.save(commit=False)
             command.job = job
-            command.owner = request.user.profile  # Ensure this attribute is correctly referenced
+            command.owner = request.user.profile
             command.save()
-            return redirect('job-detail-list', pk=pk)  # Redirect to the same job detail page
+            
+            execute_command_task.delay(command.id)
+            
+            return redirect('job-detail-list', pk=pk)
     else:
         form = CommandForm()
     

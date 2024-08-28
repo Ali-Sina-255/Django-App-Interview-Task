@@ -1,24 +1,34 @@
+{% load static %}
+<header
+      class="bg-gradient-to-r from-[#fbbf24] from-5% via-[#fb923c] w-full via-20% to-[#fbbf24] to-80% drop-shadow-lg"
+    >
+      <nav
+        class="flex items-center justify-between flex-wrap bg-white-500 h-20 px-5"
+      >
+        <!-- Logo image -->
+        <div class="flex items-center text-black">
+          <a href="{% url 'home' %}" style="margin-left:20px">
+            Django App Interview Task
+          </a>
+          <!-- Search Box -->
+        
+        </div>
+        <!-- Register button -->
+        <div class="hidden lg:flex items-center">
+          <!-- add to card button -->
+          <label class="font-bold mr-3 ml-3 text-1xl">
+            {% if user.is_authenticated %}
 
-<nav class="navbar navbar-expand-lg bg-body-tertiary">
-  <div class="container-fluid">
-    <a class="navbar-brand" href="#">Home</a>
-    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
-      <span class="navbar-toggler-icon"></span>
-    </button>
-    <div class="collapse navbar-collapse" id="navbarNav">
-     
-    </div>
-  </div>
+            <a href="{% url 'logout' %}" class="cursor-pointer">Logout</a> /
+            <a href="" class="cursor-pointer">MY Account</a> 
+            {% else%}
+              <a href="{% url 'login-user' %}" class="cursor-pointer">Login</a> /
+              <a href="{% url 'register' %}" class="cursor-pointer">Register</a> 
 
-  {% if request.user.is_authenticated %}
-     <a class="navbar-brand" href="">Logout</a>
-
-     <a class="navbar-brand" href="#">Dashborad </a>
-     {% else %}
-
-      <a class="navbar-brand" href="{% url 'login' %}">Login</a>
-     <a class="navbar-brand" href="{% url 'register_user' %}">Register</a>
-
-  {% endif %}
-  
-</nav>
+          
+            {% endif%}
+          </label>
+        </div>
+      </nav>
+      <!-- Mobile and Tablet menu -->
+         </header>

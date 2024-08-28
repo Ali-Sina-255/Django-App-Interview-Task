@@ -1,10 +1,7 @@
-{% extends 'base.html' %}
+
+{% extends "base.html" %}
 
 {% block content %}
-
-
-
-{% include 'includes/messages.html' %}
 {% if error_message %}
 <ul>
     <li style="color: red;">
@@ -12,13 +9,56 @@
     </li>
 </ul>
 {% endif %}
+<!-- login page -->
+    <div id="login-hero" class="flex items-center justify-center mx-auto">
+      <div
+        class="w-full max-w-lg bg-white border-t-4 pb-4 rounded mx-4"
+      >
+        <div class="text-center mb-4">
+          <h1 class="font-bold text-xl pt-5 text-black">Your One Time Password.</h1>
+          <p class="text-sm">Django App Interview Task</p>
+        </div>
+        <hr class="h-px my-4 bg-black border-0 mx-10" />
+        <!-- Form Login -->
+        <form action="" method='POST' class="mt-10 mx-10">
+            {% csrf_token %}
+          <label class="form-label pb-5" for="email">Your One Time Password.</label><br />
+          <input
+            type="number"
+            class="w-full h-11 my-2 pl-3 rounded-md  outline-none border hover:border-gray-500"
+           name="otp"
+            placeholder="Your One Time Password."
+          /><br />
+          
+          <!-- Submit Button -->
+          <div class="mt-7">
+            <button
+              class="w-full h-full text-white hover:text-black bg-gradient-to-r from-[#fbbf24] to-[#fb923c] rounded font-bold text-xl p-1"
+            >
+              Submit
+            </button>
+          </div>
+          <!-- Forgot password -->
+          
+        </form>
+        {% include 'includes/messages.html' %}
+
+        <!-- End Form Login -->
+      </div>
+    </div>
+
+
+{% endblock%}
+
+
+
+
 <form action="" method="POST">
     {% csrf_token %}
   
     <div class="mb-3">
-        <label  class="form-label">Your One Time Password. </label>
+        <label  class="form-label"> </label>
         <input type="number" name="otp" class="form-control" placeholder="Enter your otp"
     </div>
     <input type="submit" class="btn btn-primary mt-3">
 </form>
-{% endblock %}

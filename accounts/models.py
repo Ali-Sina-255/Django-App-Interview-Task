@@ -73,8 +73,6 @@ class UserProfile(models.Model):
         return self.user.email
 
 
-
-
 class OTP(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     otp_code = models.CharField(max_length=6)
@@ -82,8 +80,17 @@ class OTP(models.Model):
     is_used = models.BooleanField(default=False)
     expires_at = models.DateTimeField()
 
-    def is_valid(self):
-        return not self.is_used and timezone.now() < self.expires_at
+    def clean(self):
+        if self.expires_at < timezone.now():
+            raise ValidationError("OTP has expired.")
+
+
+        if OTP.objects.filter(user=self.user, otp_code=self.otp_code, is_used=False, expires_at__gt=timezone.now()).exists():
+            raise ValidationError("An active OTP already exists for this user.")
+
+    def save(self, *args, **kwargs):
+        self.full_clean()  
+        super().save(*args, **kwargs)
 
     def __str__(self):
         return f'OTP for {self.user.email}'

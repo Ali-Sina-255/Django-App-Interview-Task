@@ -18,8 +18,6 @@ def post_save_create_profile_receiver(sender, instance, created, **kwargs):
             print("profile was not exist, but was created")
         print("user is updated")
 
-
-# one way
 # post_save.connect(post_save_create_profile_receiver)
 @receiver(pre_save, sender=User)
 def pre_save_profile_receiver(sender, instance, **kwargs):

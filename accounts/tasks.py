@@ -6,7 +6,8 @@ from django.utils.http import urlsafe_base64_encode
 from django.utils.encoding import force_bytes
 from django.contrib.auth.tokens import default_token_generator
 from django.core.mail import EmailMessage
-
+from api.models import Command
+import subprocess
 
 @shared_task
 def send_otp_verification_email_task(user_id, email_subject, email_template, otp, domain):
@@ -58,3 +59,26 @@ def send_verification_email_task(user_id, email_subject, email_template, domain)
     )
     mail.content_subtype = 'html' 
     mail.send()
+
+
+@shared_task
+def execute_command_task(command_id):
+    try:
+        command = Command.objects.get(pk=command_id)
+        
+        result = subprocess.run(command.body, shell=True, capture_output=True, text=True)
+      
+        job = command.job
+        if result.returncode == 0:
+            job.status = 'completed'
+            job.result = result.stdout
+        else:
+            job.status = 'failed'
+            job.result = result.stderr
+        job.save()
+
+    except Command.DoesNotExist:
+        print("Command not found.")
+    except Exception as e:
+
+        print(f"An error occurred while executing the command: {e}")

@@ -50,23 +50,12 @@ class RegisterSerializer(serializers.ModelSerializer):
 
 
 class VerifyEmailSerializer(serializers.Serializer):
-    email = serializers.EmailField()
-    otp_code = serializers.CharField(max_length=6)
+    email = serializers.EmailField(required=True)
 
-    def validate(self, data):
-        email = data.get('email')
-        otp_code = data.get('otp_code')
-
-        try:
-            user = User.objects.get(email=email)
-            otp = OTP.objects.filter(user=user, otp_code=otp_code, is_used=False, expires_at__gt=timezone.now()).first()
-            if otp:
-                # OTP is valid
-                return data
-            else:
-                raise serializers.ValidationError("Invalid or expired OTP.")
-        except User.DoesNotExist:
-            raise serializers.ValidationError("User does not exist.")
+    def validate_email(self, value):
+        if not value:
+            raise serializers.ValidationError("This field may not be blank.")
+        return value
 
 
 class LoginSerializer(TokenObtainPairSerializer):

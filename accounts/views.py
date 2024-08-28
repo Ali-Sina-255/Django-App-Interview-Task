@@ -14,6 +14,8 @@ from . utils import send_verification_email,send_otp_verification_email
 from .helper import send_otp
 from datetime import datetime
 import pyotp
+
+
 from accounts.models import User
 from django.contrib.auth import get_user_model
 
@@ -66,6 +68,7 @@ def user_registration(request):
     
     context = {"form": form}
     return render(request, "accounts/register.html", context)
+
 
 def activate(request, uidb64, token):
      # activated the user by settings the is_active to true
@@ -162,8 +165,6 @@ def otp_views(request):
 
     context = {'error_message': error_message}
     return render(request, 'accounts/otp.html', context)
-
-
 
 
 def my_account(request):

@@ -10,4 +10,5 @@ urlpatterns = [
     path('otp/', views.otp_views, name='otp'),
     path('logout/', views.logout_view, name='logout'),
     path('activate/<uidb64>/<token>/', views.activate, name='activate'),
+    
 ]
