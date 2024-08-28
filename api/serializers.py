@@ -10,7 +10,7 @@ import random
 class JobSerializer(serializers.ModelSerializer):
     class Meta:
         model = Job
-        fields = ['id', 'name', 'scheduled_time', 'status', 'created_at', 'updated_at']
+        fields = ['id', 'name', 'price', 'scheduled_time', 'status', 'created_at', 'updated_at']
 
 
 

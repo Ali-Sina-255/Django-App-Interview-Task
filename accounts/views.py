@@ -166,6 +166,61 @@ def otp_views(request):
     context = {'error_message': error_message}
     return render(request, 'accounts/otp.html', context)
 
+def forgot_password_view(request):
+    if request.method == "POST":
+        email = request.POST["email"]
+        if User.objects.filter(email=email).exists():
+            user = User.objects.get(email__iexact=email)
+            mail_subject = "Reset your password"
+            email_template = "account/email/reset_password_email.html"
+            send_verification_email(request, user, mail_subject, email_template)
+            send_reset_password_email(request, user)
+            messages.success(
+                request, "Your password reset link has been sent to your email address"
+            )
+            return redirect("login")
+        else:
+            messages.error(request, "Account does not exist")
+            return redirect("forgot_password")
+
+    return render(request, "account/forgot_password.html")
+
+
+def reset_password_validate_view(request, uidb64, token):
+    try:
+        uid = urlsafe_base64_decode(uidb64).decode()
+        user = User._default_manager.get(pk=uid)
+    except (TypeError, ValueError, User.DoesNotExist, OverflowError):
+        user = None
+
+    if user is not None and default_token_generator.check_token(user, token):
+        request.session["uid"] = uid
+        messages.info(request, "please reset your password")
+        return redirect("reset_password")
+    else:
+        messages.error(request, "this link has been expired")
+        return redirect("my_account")
+
+
+def reset_password_view(request):
+    if request.method == "POST":
+        password = request.POST["password"]
+        confirm_password = request.POST["confirm_password"]
+        if password == confirm_password:
+            pk = request.session.get("uid")
+            user = User.objects.get(pk=pk)
+            user.set_password(password)
+            user.is_active = True
+            user.asave()
+            messages.success(request, "your password has been reset successfully")
+            return redirect("login")
+
+        else:
+            messages.error(request, "password dont match")
+            return redirect("reset_password")
+    return render(request, "account/reset_password.html")
+
+
 
 def my_account(request):
     return render(request, 'accounts/my_account.html')

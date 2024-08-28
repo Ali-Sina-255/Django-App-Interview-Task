@@ -1,48 +1,51 @@
 {% extends 'base.html' %}
 
 {% block content %}
-<div class="container">
-	<h1 class="mb-4">Jobs List</h1>
+<div class="container mx-auto p-6">
+    <h1 class="text-2xl font-semibold mb-6">Jobs List</h1>
 
-        <!-- Jobs Table -->
-        <table class="table table-striped">
+    <!-- Jobs Table -->
+    <div class="overflow-x-auto">
+        <table class="min-w-full bg-white border border-gray-200 shadow-md rounded-lg">
             <thead>
-                <tr>
-                    <th>Name</th>
-                    <th>Description</th>
-                    <th>Scheduled Time</th>
-                    <th>Status</th>
-                    <th>Result</th>
+                <tr class="bg-gray-100">
+                    <th class="py-3 px-6 text-left text-sm font-medium text-gray-600">Name</th>
+                    <th class="py-3 px-6 text-left text-sm font-medium text-gray-600">Description</th>
+                    <th class="py-3 px-6 text-left text-sm font-medium text-gray-600">Scheduled Time</th>
+                    <th class="py-3 px-6 text-left text-sm font-medium text-gray-600">Status</th>
+                    <th class="py-3 px-6 text-left text-sm font-medium text-gray-600">Result</th>
                 </tr>
             </thead>
-            <tbody>
+            <tbody class="text-gray-700">
                 {% for job in jobs %}
-                <tr>
-                   <td><a href="{% url 'job-detail-list' job.pk %}">{{ job.name }}</a></td>
-                    <td>{{ job.description|default:"N/A" }}</td>
-                    <td>{{ job.scheduled_time|date:"Y-m-d H:i" }}</td>
-                    <td>
+                <tr class="border-b hover:bg-gray-50">
+                    <td class="py-4 px-6">
+                        <a href="{% url 'job-detail-list' job.pk %}" class="text-blue-600 hover:underline">{{ job.name }}</a>
+                    </td>
+                    <td class="py-4 px-6">{{ job.description|default:"N/A" }}</td>
+                    <td class="py-4 px-6">{{ job.scheduled_time|date:"Y-m-d H:i" }}</td>
+                    <td class="py-4 px-6">
                         {% if job.status == 'completed' %}
-                            <span class="badge badge-success">Completed</span>
+                            <span class="inline-block px-3 py-1 text-xs font-semibold text-green-700 bg-green-100 rounded-full">Completed</span>
                         {% elif job.status == 'in_progress' %}
-                            <span class="badge badge-warning">In Progress</span>
+                            <span class="inline-block px-3 py-1 text-xs font-semibold text-yellow-700 bg-yellow-100 rounded-full">In Progress</span>
                         {% elif job.status == 'failed' %}
-                            <span class="badge badge-danger">Failed</span>
+                            <span class="inline-block px-3 py-1 text-xs font-semibold text-red-700 bg-red-100 rounded-full">Failed</span>
                         {% elif job.status == 'canceled' %}
-                            <span class="badge badge-secondary">Canceled</span>
+                            <span class="inline-block px-3 py-1 text-xs font-semibold text-gray-700 bg-gray-100 rounded-full">Canceled</span>
                         {% else %}
-                            <span class="badge badge-primary">Pending</span>
+                            <span class="inline-block px-3 py-1 text-xs font-semibold text-blue-700 bg-blue-100 rounded-full">Pending</span>
                         {% endif %}
                     </td>
-                    <td>{{ job.result|default:"N/A" }}</td>
-                   
+                    <td class="py-4 px-6">{{ job.result|default:"N/A" }}</td>
                 </tr>
                 {% empty %}
                 <tr>
-                    <td colspan="6">No jobs available.</td>
+                    <td colspan="5" class="py-4 px-6 text-center text-gray-500">No jobs available.</td>
                 </tr>
                 {% endfor %}
             </tbody>
         </table>
+    </div>
 </div>
 {% endblock %}
