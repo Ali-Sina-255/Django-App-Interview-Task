@@ -1,88 +1,91 @@
-
 {% extends 'base.html' %}
 
 {% block content %}
-<div class="container mt-4">
-     <h1 class="mb-4">Job Details</h1>
+<div class="container mx-auto mt-4 px-4">
+    <h1 class="text-2xl font-bold mb-4">Job Details</h1>
 
-        <!-- Job Details -->
-        <div class="card mb-4">
-            <div class="card-header">
-                <h4 class="card-title">{{ job.name }}</h4>
-            </div>
-            <div class="card-body">
-                <p><strong>Description:</strong> {{ job.description|default:"N/A" }}</p>
-                <p><strong>Scheduled Time:</strong> {{ job.scheduled_time|date:"Y-m-d H:i" }}</p>
-                <p><strong>Status:</strong>
-                    {% if job.status == 'completed' %}
-                        <span class="badge badge-success">Completed</span>
-                    {% elif job.status == 'in_progress' %}
-                        <span class="badge badge-warning">In Progress</span>
-                    {% elif job.status == 'failed' %}
-                        <span class="badge badge-danger">Failed</span>
-                    {% elif job.status == 'canceled' %}
-                        <span class="badge badge-secondary">Canceled</span>
-                    {% else %}
-                        <span class="badge badge-primary">Pending</span>
-                    {% endif %}
-                </p>
-                <p><strong>Result:</strong> {{ job.result|default:"N/A" }}</p>
-            </div>
+    <!-- Job Details -->
+    <div class="bg-white shadow-md rounded-lg mb-4">
+        <div class="border-b p-4">
+            <h4 class="text-xl font-semibold">{{ job.name }}</h4>
         </div>
-
-        <!-- Job Result -->
-        {% if job.jobresult %}
-        <div class="card mb-4">
-            <div class="card-header">
-                <h4 class="card-title">Job Result</h4>
-            </div>
-            <div class="card-body">
-                <p><strong>Output:</strong> {{ job.jobresult.output|default:"N/A" }}</p>
-                <p><strong>Error Message:</strong> {{ job.jobresult.error_message|default:"N/A" }}</p>
-                <p><strong>Completed At:</strong> {{ job.jobresult.completed_at|date:"Y-m-d H:i"|default:"N/A" }}</p>
-            </div>
-        </div>
-        {% else %}
-        <div class="alert alert-info" role="alert">
-            No result available for this job.
-        </div>
-        {% endif %}
-
-        <!-- Commands List -->
-        <div class="card mb-4">
-            <div class="card-header">
-                <h4 class="card-title">Commands</h4>
-            </div>
-            <div class="card-body">
-                <ul class="list-group">
-                    {% for command in job.command_set.all %}
-                        <li class="list-group-item">
-                            <p>{{ command.body|default:"No content" }}</p>
-                            <small class="text-muted">Created at: {{ command.created_at|date:"Y-m-d H:i" }}</small>
-                        </li>
-                    {% empty %}
-                        <li class="list-group-item">No commands available.</li>
-                    {% endfor %}
-                </ul>
-            </div>
-        </div>
-
-        <!-- Add Command Form -->
-        <div class="card mb-4">
-            <div class="card-header">
-                <h4 class="card-title">Add Command</h4>
-            </div>
-            <div class="card-body">
-                <form method="post" action="{% url 'job-detail-list' job.id %}">
-                    {% csrf_token %}
-                    <div class="form-group">
-                        <label for="body">Command:</label>
-                        <textarea id="body" name="body" class="form-control" rows="3" required></textarea>
-                    </div>
-                    <button type="submit" class="btn btn-primary">Submit</button>
-                </form>
-            </div>
+        <div class="p-4">
+            <p><strong>Description:</strong> {{ job.description|default:"Have no Description " }}</p>
+            <p><strong>Scheduled Time:</strong> {{ job.scheduled_time|date:"Y-m-d H:i" }}</p>
+            <p><strong>Status:</strong>
+                {% if job.status == 'completed' %}
+                    <span class="inline-block bg-green-200 text-green-800 py-1 px-2 rounded">Completed</span>
+                {% elif job.status == 'in_progress' %}
+                    <span class="inline-block bg-yellow-200 text-yellow-800 py-1 px-2 rounded">In Progress</span>
+                {% elif job.status == 'failed' %}
+                    <span class="inline-block bg-red-200 text-red-800 py-1 px-2 rounded">Failed</span>
+                {% elif job.status == 'canceled' %}
+                    <span class="inline-block bg-gray-200 text-gray-800 py-1 px-2 rounded">Canceled</span>
+                {% else %}
+                    <span class="inline-block bg-blue-200 text-blue-800 py-1 px-2 rounded">Pending</span>
+                {% endif %}
+            </p>
+            <p><strong>Result:</strong> {{ job.result|default:"Have no Result" }}</p>
         </div>
     </div>
 
+    <!-- Job Result -->
+    {% if job.jobresult %}
+    <div class="bg-white shadow-md rounded-lg mb-4">
+        <div class="border-b p-4">
+            <h4 class="text-xl font-semibold">Job Result</h4>
+        </div>
+        <div class="p-4">
+            <p><strong>Output:</strong> {{ job.jobresult.output }}</p>
+            <p><strong>Error Message:</strong> {{ job.jobresult.error_message}}</p>
+            <p><strong>Completed At:</strong> {{ job.jobresult.completed_at|date:"Y-m-d H:i"|default:"N/A" }}</p>
+        </div>
+    </div>
+    {% else %}
+    <div class="bg-blue-100 border border-blue-200 text-blue-800 p-4 rounded" role="alert">
+        No result available for this job.
+    </div>
+    {% endif %}
+
+    <!-- Commands List -->
+    <div class="bg-white shadow-md rounded-lg mb-4">
+        <div class="border-b p-4">
+            <h4 class="text-xl font-semibold">Commands</h4>
+        </div>
+        <div class="p-4">
+            <ul class="space-y-2">
+                {% for command in job.command_set.all %}
+                    <li class="bg-gray-100 p-4 rounded flex items-center space-x-4">
+                        <!-- Display User Image -->
+                        <img src="{{ command.owner.profile_picture.url }}" alt="{{ command.user.first_name }}" class="w-12 h-12 rounded-full object-cover">
+                        <div>
+                            <div class="font-medium">{{ command.user.first_name }}</div>
+                            <p>{{ command.body|default:"No content" }}</p>
+                            <small class="text-gray-600">Created at: {{ command.created_at|date:"Y-m-d H:i" }}</small>
+                        </div>
+                    </li>
+                {% empty %}
+                    <li class="bg-gray-100 p-4 rounded">No commands available.</li>
+                {% endfor %}
+            </ul>
+        </div>
+    </div>
+
+    <!-- Add Command Form -->
+    <div class="bg-white shadow-md rounded-lg mb-4">
+        <div class="border-b p-4">
+            <h4 class="text-xl font-semibold">Add Command</h4>
+        </div>
+        <div class="p-4">
+            <form method="post" action="{% url 'job-detail-list' job.id %}">
+                {% csrf_token %}
+                <div class="mb-4">
+                    <label for="body" class="block text-gray-700 font-medium mb-2">Command:</label>
+                    <textarea id="body" name="body" class="form-textarea mt-1 block w-full border-gray-300 rounded-md shadow-sm" rows="3" required></textarea>
+                </div>
+                <button type="submit" class="bg-blue-500 text-white py-2 px-4 rounded hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500">Submit</button>
+            </form>
+        </div>
+    </div>
+</div>
 {% endblock %}

@@ -11,6 +11,7 @@ from rest_framework_simplejwt.authentication import JWTAuthentication
 from rest_framework.exceptions import PermissionDenied, NotFound
 from rest_framework.response import Response
 from rest_framework.filters import SearchFilter, OrderingFilter
+from rest_framework import viewsets
 
 
 from .models import Job
@@ -22,6 +23,11 @@ from rest_framework_simplejwt.views import TokenObtainPairView
 from rest_framework import generics,status
 from accounts.tasks import send_verification_email_task , execute_command_task
 
+
+class JobViewSet(viewsets.ModelViewSet):
+    queryset = Job.objects.all()
+    serializer_class = JobSerializer
+    
 
 
 class JobListCreateView(generics.ListCreateAPIView):
