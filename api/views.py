@@ -12,9 +12,11 @@ from rest_framework.exceptions import PermissionDenied, NotFound
 from rest_framework.response import Response
 from rest_framework.filters import SearchFilter, OrderingFilter
 
+
 from .models import Job
 from . forms import CommandForm
 from .filters import JobFilter
+from . paginations import DefaulPagination
 from .serializers import JobSerializer, JobResultSerializer, RegisterSerializer, VerifyEmailSerializer,LoginSerializer
 from rest_framework_simplejwt.views import TokenObtainPairView
 from rest_framework import generics,status
@@ -29,6 +31,7 @@ class JobListCreateView(generics.ListCreateAPIView):
     filter_backends = [DjangoFilterBackend, SearchFilter, OrderingFilter]
     filterset_fields = ['status'] 
     filterset_class = JobFilter
+    pagination_class = DefaulPagination
     search_fields = ['name','description','stats']
     ordering_fields = ['name','price','scheduled_time','updated_at']
     
