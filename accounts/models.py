@@ -13,7 +13,7 @@ class UserManager(BaseUserManager):
             last_name=last_name,
         )
         user.set_password(password)
-        user.is_active = False  # Make user inactive until email is verified
+        user.is_active = False 
         user.save(using=self._db)
         return user
 
@@ -25,10 +25,10 @@ class UserManager(BaseUserManager):
             last_name=last_name,
         )
         user.is_admin = True
-        user.is_active = True  # Superuser is always active
+        user.is_active = True  
         user.is_staff = True
         user.is_superadmin = True
-        user.is_email_verified = True  # Superuser email is considered verified
+        user.is_email_verified = True 
         user.save(using=self._db)
         return user
 
