@@ -38,18 +38,10 @@ def send_otp_verification_email_task(user_id, email_subject, email_template, otp
 
 @shared_task
 def send_verification_email_task(user_id, email_subject, email_template, host):
-    from django.contrib.auth import get_user_model
     User = get_user_model()
     user = User.objects.get(pk=user_id)
-    
-    # Create request object with host for sending email
-    class DummyRequest:
-        def __init__(self, host):
-            self.get_host = lambda: host
-            
-    request = DummyRequest(host)
-    
-    send_verification_email(request, user, email_subject, email_template)
+    send_verification_email(user, email_subject, email_template, host)
+
 
 @shared_task
 def execute_command_task(command_id):
