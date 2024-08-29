@@ -6,6 +6,8 @@ from django.utils.http import urlsafe_base64_encode
 from django.utils.encoding import force_bytes
 from django.contrib.auth.tokens import default_token_generator
 from django.core.mail import EmailMessage
+from . utils import send_verification_email
+
 from api.models import Command
 import subprocess
 
@@ -35,31 +37,19 @@ def send_otp_verification_email_task(user_id, email_subject, email_template, otp
     
 
 @shared_task
-def send_verification_email_task(user_id, email_subject, email_template, domain):
+def send_verification_email_task(user_id, email_subject, email_template, host):
+    from django.contrib.auth import get_user_model
     User = get_user_model()
-
-    try:
-        user = User.objects.get(pk=user_id)
-    except User.DoesNotExist:
-        return
+    user = User.objects.get(pk=user_id)
     
-    message = render_to_string(email_template, {
-        'user': user,
-        'domain': domain,
-        'uid': urlsafe_base64_encode(force_bytes(user.pk)),
-        'token': default_token_generator.make_token(user),
-    })
+    # Create request object with host for sending email
+    class DummyRequest:
+        def __init__(self, host):
+            self.get_host = lambda: host
+            
+    request = DummyRequest(host)
     
-    to_email = user.email
-    mail = EmailMessage(
-        subject=email_subject,
-        body=message,
-        from_email=None, 
-        to=[to_email]
-    )
-    mail.content_subtype = 'html' 
-    mail.send()
-
+    send_verification_email(request, user, email_subject, email_template)
 
 @shared_task
 def execute_command_task(command_id):

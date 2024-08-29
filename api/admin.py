@@ -1,6 +1,7 @@
 from django.contrib import admin
-from . models import Job, Command
+from . models import Job, JobResult
+
 
 admin.site.register(Job)
-admin.site.register(Command)
-# Register your models here.
+admin.site.register(JobResult)
+

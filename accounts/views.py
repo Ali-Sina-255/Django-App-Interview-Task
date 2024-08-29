@@ -4,10 +4,12 @@ from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.models import User
 from django.contrib.auth.tokens import default_token_generator
 from django.utils.http import urlsafe_base64_decode
-from . tasks import send_otp_verification_email_task, send_reset_password_email_task
+from . tasks import send_otp_verification_email_task,send_verification_email_task
+
+
 from django.contrib.sites.shortcuts import get_current_site
 
-from .tasks import send_verification_email_task 
+
 from django.contrib import messages
 from . forms import UserRegistrationForm
 from . utils import send_verification_email,send_otp_verification_email, send_reset_password_email
@@ -26,7 +28,6 @@ def home_view(request):
 
 
 User = get_user_model()
-
 def user_registration(request):
     if request.user.is_authenticated:
         messages.warning(request, "You are already registered")
@@ -225,4 +226,3 @@ def reset_password_view(request):
 
 def my_account(request):
     return render(request, 'accounts/my_account.html')
-

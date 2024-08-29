@@ -2,7 +2,7 @@
 {% load static %}
 {% block content %}
 <div id="hero-register" class="flex justify-center items-center mt-6">
-      <form method = 'POST' action="{% url 'register' %}"
+      <form method = 'POST' action="{% url 'register_user' %}"
         class="px-4 border max-w-3xl w-full  rounded md:bg-white bg-slate-400 bg-opacity-50"
       >
       {% csrf_token %}

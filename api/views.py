@@ -1,20 +1,23 @@
 from django.contrib.auth import get_user_model
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
-
 from django_filters.rest_framework import DjangoFilterBackend
+
 from rest_framework import generics, permissions, viewsets, status
 from rest_framework_simplejwt.authentication import JWTAuthentication
 from rest_framework.exceptions import PermissionDenied, NotFound
 from rest_framework.response import Response
 from rest_framework.filters import SearchFilter, OrderingFilter
 from rest_framework_simplejwt.views import TokenObtainPairView
+from rest_framework.permissions import IsAuthenticated
+
+from rest_framework.views import APIView
 
 from .models import Job, JobResult
 from .forms import CommandForm
 from .filters import JobFilter
 from .paginations import DefaulPagination
-from .serializers import JobSerializer, JobResultSerializer, RegisterSerializer, VerifyEmailSerializer, LoginSerializer
+from .serializers import JobSerializer, JobResultSerializer, RegisterSerializer, VerifyEmailSerializer, LoginSerializer,ProfileUpdateSerializer
 from accounts.tasks import send_verification_email_task, execute_command_task
 
 
@@ -87,10 +90,6 @@ class JobResultView(generics.RetrieveAPIView):
             raise NotFound("Job result not available.")
 
 
-class RegisterView(generics.CreateAPIView):
-    User = get_user_model()
-    queryset = User.objects.all()
-    serializer_class = RegisterSerializer
 
 
 class VerifyEmailView(generics.GenericAPIView):
@@ -147,3 +146,30 @@ def job_detail_view(request, pk):
         form = CommandForm()
 
     return render(request, 'job/job_detail.html', {'job': job, 'form': form})
+
+
+class RegisterView(APIView):
+    def post(self, request):
+        serializer = RegisterSerializer(data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(
+                {"message": "User registered successfully. Check your email for the OTP verification."},
+                status=status.HTTP_201_CREATED
+            )
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+class ProfileUpdateView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        serializer = ProfileUpdateSerializer(request.user)
+        return Response(serializer.data)
+
+    def put(self, request):
+        serializer = ProfileUpdateSerializer(request.user, data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response({"message": "Profile updated successfully."}, status=status.HTTP_200_OK)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)

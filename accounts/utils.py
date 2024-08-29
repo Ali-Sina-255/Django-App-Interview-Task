@@ -31,7 +31,7 @@ def send_otp_verification_email(request, user, email_subject, email_template, ot
         'domain': current_site.domain,
         'uid': urlsafe_base64_encode(force_bytes(user.pk)),
         'token': default_token_generator.make_token(user),
-        'otp': otp  # Pass the OTP to the template context
+        'otp': otp  
     })
     
     to_email = user.email
