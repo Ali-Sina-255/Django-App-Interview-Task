@@ -8,7 +8,9 @@ class UserRegistrationForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         super(UserRegistrationForm, self).__init__(*args, **kwargs)
         for visible in self.visible_fields():
-            visible.field.widget.attrs["class"] = "form-control"
+            visible.field.widget.attrs["class"] = (
+                "form-control border w-full rounded-md py-2 px-3 text-gray-700 "
+            )
 
     class Meta:
         model = User
