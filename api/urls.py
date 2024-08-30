@@ -17,10 +17,10 @@ urlpatterns = [
 	path('register/', views.RegisterView.as_view(), name='register'),
  	path('activate/<uidb64>/<token>/', views.activate, name='activate'),
 	path('register/update/', views.ProfileUpdateView.as_view(), name='profile-update'),
-    path('profile/delete/<int:pk>/', views.ProfileDeleteView.as_view(), name='profile-delete'),
-
+  	path('profile/update/', views.ProfileUpdateView.as_view(), name='profile-update'),
     path('verify-email/', views.VerifyEmailView.as_view(), name='verify-email'),
     path('login/', views.LoginView.as_view(), name='login'),
+    path('logout/', views.LogoutView.as_view(), name='logout'),
 	path('jobs/<int:pk>/', views.JobDetailView.as_view(), name='job-detail'),
 	path('jobs/<int:pk>/update/', views.JobUpdateView.as_view(), name='job-update'),
 	path('jobs/<int:pk>/result/', views.JobResultView.as_view(), name='job-result'),

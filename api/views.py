@@ -9,7 +9,9 @@ from rest_framework.exceptions import PermissionDenied, NotFound
 from rest_framework.response import Response
 from rest_framework.filters import SearchFilter, OrderingFilter
 from rest_framework_simplejwt.views import TokenObtainPairView
-from rest_framework.permissions import IsAuthenticated
+from rest_framework.permissions import IsAuthenticated, AllowAny
+
+
 from rest_framework.views import APIView
 
 
@@ -17,7 +19,7 @@ from .models import Job, JobResult, Command
 from .forms import CommandForm
 from .filters import JobFilter
 from .paginations import DefaulPagination
-from .serializers import JobSerializer, JobResultSerializer, RegisterSerializer, VerifyEmailSerializer, LoginSerializer,ProfileUpdateSerializer,CommandSerializer
+from .serializers import JobSerializer, JobResultSerializer, RegisterSerializer, VerifyEmailSerializer, LoginSerializer,ProfileUpdateSerializer,CommandSerializer, LogoutSerializer
 from accounts.tasks import send_verification_email_task_api, execute_command_task
 from django.contrib.auth import get_user_model
 
@@ -32,8 +34,10 @@ User = get_user_model()
 class CommandViewSet(viewsets.ModelViewSet):
     queryset = Command.objects.all()
     serializer_class = CommandSerializer
-
-
+    filter_backends = [DjangoFilterBackend, SearchFilter, OrderingFilter]
+    pagination_class = DefaulPagination
+    search_fields = ['id', 'body']
+    
 class JobViewSet(viewsets.ModelViewSet):
     queryset = Job.objects.all()
     serializer_class = JobSerializer
@@ -134,7 +138,14 @@ class VerifyEmailView(generics.GenericAPIView):
 class LoginView(TokenObtainPairView):
     serializer_class = LoginSerializer
 
+class LogoutView(APIView):
+    permission_classes = [AllowAny]
 
+    def post(self, request, *args, **kwargs):
+        print("Session before flush:", request.session.session_key) 
+        print("Session after flush:", request.session.session_key) 
+        return Response({"detail": "Successfully logged out."}, status=status.HTTP_200_OK)
+        
 def all_jobs(request):
     all_jobs = Job.objects.all()
     context = {
@@ -165,26 +176,22 @@ class RegisterView(generics.CreateAPIView):
     queryset = User.objects.all() 
     serializer_class = RegisterSerializer 
     
-class ProfileUpdateView(APIView):
+
+class ProfileUpdateView(generics.UpdateAPIView):
+    serializer_class = ProfileUpdateSerializer
     permission_classes = [IsAuthenticated]
 
-    def get(self, request):
-        serializer = ProfileUpdateSerializer(request.user)
-        return Response(serializer.data)
-
-    def put(self, request):
-        serializer = ProfileUpdateSerializer(request.user, data=request.data)
-        if serializer.is_valid():
-            serializer.save()
-            return Response({"message": "Profile updated successfully."}, status=status.HTTP_200_OK)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
+    def get_object(self):
+        return self.request.user.profile
+    
+    
 class ProfileDeleteView(generics.DestroyAPIView):
     queryset = User.objects.all()
     permission_classes = [IsAuthenticated]
 
     def perform_destroy(self, instance):
         instance.delete()
+
 
 def activate(request, uidb64, token):
     try:

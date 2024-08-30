@@ -1,6 +1,6 @@
 from rest_framework import serializers
 from .models import Job, JobResult, Command
-from accounts.models import OTP, User
+from accounts.models import OTP, User, UserProfile
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 from accounts.tasks import send_verification_email_task
 from accounts.utils import send_verification_email
@@ -43,6 +43,10 @@ class LoginSerializer(TokenObtainPairSerializer):
 
 
 
+class LogoutSerializer(serializers.Serializer):
+    token = serializers.CharField(required=False)
+
+
 class RegisterSerializer(serializers.ModelSerializer):
     password = serializers.CharField(write_only=True)
 
@@ -78,22 +82,29 @@ class RegisterSerializer(serializers.ModelSerializer):
 
 class ProfileUpdateSerializer(serializers.ModelSerializer):
     class Meta:
-        model = User
-        fields = ['id','first_name', 'last_name', 'email','date_joined','last_login','is_admin','is_staff']
+        model = UserProfile
+        fields = ['profile_pic', 'address', 'state', 'city']
         extra_kwargs = {
-            'email': {'required': False},
+            'address': {'required': False},
+            'profile_pic': {'required': False},
+            'state': {'required': False},
+            'city': {'required': False},
         }
 
     def update(self, instance, validated_data):
-        instance.first_name = validated_data.get('first_name', instance.first_name)
-        instance.last_name = validated_data.get('last_name', instance.last_name)
-        instance.email = validated_data.get('email', instance.email)
+        instance.profile_pic = validated_data.get('profile_pic', instance.profile_pic)
+        instance.address = validated_data.get('address', instance.address)
+        instance.state = validated_data.get('state', instance.state)
+        instance.city = validated_data.get('city', instance.city)
 
         instance.save()
         return instance
 
 
 class CommandSerializer(serializers.ModelSerializer):
+    owner = ProfileUpdateSerializer()
+    job = JobSerializer() 
+
     class Meta:
         model = Command
         fields = ['id', 'owner', 'job', 'body', 'created_at', 'updated_at']
