@@ -10,15 +10,24 @@ from rest_framework.response import Response
 from rest_framework.filters import SearchFilter, OrderingFilter
 from rest_framework_simplejwt.views import TokenObtainPairView
 from rest_framework.permissions import IsAuthenticated
-
 from rest_framework.views import APIView
+
 
 from .models import Job, JobResult
 from .forms import CommandForm
 from .filters import JobFilter
 from .paginations import DefaulPagination
 from .serializers import JobSerializer, JobResultSerializer, RegisterSerializer, VerifyEmailSerializer, LoginSerializer,ProfileUpdateSerializer
-from accounts.tasks import send_verification_email_task, execute_command_task
+from accounts.tasks import send_verification_email_task_api, execute_command_task
+from django.contrib.auth import get_user_model
+
+
+from django.utils.http import urlsafe_base64_decode
+from django.contrib.auth.tokens import default_token_generator
+from django.contrib import messages
+
+
+User = get_user_model()
 
 
 class JobViewSet(viewsets.ModelViewSet):
@@ -94,30 +103,30 @@ class JobResultView(generics.RetrieveAPIView):
 
 class VerifyEmailView(generics.GenericAPIView):
     serializer_class = VerifyEmailSerializer
-    User = get_user_model()
 
     def post(self, request, *args, **kwargs):
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         email = serializer.validated_data.get('email')
-
+        
+        User = get_user_model()
         try:
-            user = self.User.objects.get(email=email)
+            user = User.objects.get(email=email)
+           
             if not user.is_email_verified:
-                send_verification_email_task.delay(
+                send_verification_email_task_api.delay(
                     user_id=user.id,
                     email_subject="Verify Your Email Address",
-                    email_template="accounts/email/verification_email.html",
-                    domain="localhost://8000"
-                )
+                    email_template="accounts/email/verification_email_api.html",
+                    host="localhost:8000"  # Ensure this is correct and consistent
+                    )
                 return Response({"detail": "Verification email sent successfully."}, status=status.HTTP_200_OK)
             else:
                 return Response({"detail": "Email is already verified."}, status=status.HTTP_200_OK)
 
-        except self.User.DoesNotExist:
-            return Response({"detail": "User does not exist."}, status=status.HTTP_404_NOT_FOUND)
-
-
+        except User.DoesNotExist:
+            return Response({"detail": "User does not exist."}, status=status.HTTP_404_NOT_FOUND)      
+        
 class LoginView(TokenObtainPairView):
     serializer_class = LoginSerializer
 
@@ -148,18 +157,10 @@ def job_detail_view(request, pk):
     return render(request, 'job/job_detail.html', {'job': job, 'form': form})
 
 
-class RegisterView(APIView):
-    def post(self, request):
-        serializer = RegisterSerializer(data=request.data)
-        if serializer.is_valid():
-            serializer.save()
-            return Response(
-                {"message": "User registered successfully. Check your email for the OTP verification."},
-                status=status.HTTP_201_CREATED
-            )
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
-
+class RegisterView(generics.CreateAPIView):
+    queryset = User.objects.all() 
+    serializer_class = RegisterSerializer 
+    
 class ProfileUpdateView(APIView):
     permission_classes = [IsAuthenticated]
 
@@ -173,3 +174,21 @@ class ProfileUpdateView(APIView):
             serializer.save()
             return Response({"message": "Profile updated successfully."}, status=status.HTTP_200_OK)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+def activate(request, uidb64, token):
+    try:
+        uid = urlsafe_base64_decode(uidb64).decode()
+        user = User._default_manager.get(pk=uid)
+    except (TypeError, ValueError, User.DoesNotExist, OverflowError):
+        user = None
+
+    if user is not None and default_token_generator.check_token(user, token):
+        user.is_active = True
+        user.is_email_verified = True
+        user.save()
+        messages.success(request, "Congratulations, your account is activated.")
+        return redirect("login")
+    else:
+        messages.error(request, "Invalid Activation link.")
+        return redirect("register")

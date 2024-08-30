@@ -1,3 +1,4 @@
+
 import pyotp 
 from datetime import datetime, timedelta
 
@@ -10,4 +11,3 @@ def send_otp(request):
     print(f'your otp code is {otp}')
     return otp
     
-

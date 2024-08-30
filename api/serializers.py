@@ -3,8 +3,10 @@ from .models import Job, JobResult
 from accounts.models import OTP, User
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 from accounts.tasks import send_verification_email_task
+from accounts.utils import send_verification_email
 from django.utils import timezone
 from django.contrib.auth import get_user_model
+from django.db.models import Q
 import random
 
 User = get_user_model()
@@ -24,8 +26,7 @@ class JobResultSerializer(serializers.ModelSerializer):
 
 
 class VerifyEmailSerializer(serializers.Serializer):
-    email = serializers.EmailField(required=True)
-
+    email = serializers.EmailField()
     def validate_email(self, value):
         if not value:
             raise serializers.ValidationError("This field may not be blank.")
@@ -40,43 +41,39 @@ class LoginSerializer(TokenObtainPairSerializer):
         return super().validate(attrs)
 
 
+
 class RegisterSerializer(serializers.ModelSerializer):
     password = serializers.CharField(write_only=True)
-    phone_number = serializers.CharField(required=False, allow_blank=True)  
-    address = serializers.CharField(required=False, allow_blank=True)       
 
     class Meta:
-        model = User
-        fields = ['first_name', 'last_name', 'email', 'password', 'phone_number', 'address']
+        model = get_user_model()
+        fields = ['first_name', 'last_name', 'email', 'password']
+
+    def validate(self, data):
+        email = data.get('email')
+        first_name = data.get('first_name')
+        
+        if not first_name or not email:
+            raise serializers.ValidationError('A first name and email are required to register.')
+        
+        User = get_user_model()
+        user = User.objects.filter(email=email, first_name=first_name).distinct()
+        if user.exists():
+            raise serializers.ValidationError('This email or first name is already in use.')
+
+        return data
 
     def create(self, validated_data):
-        user = User.objects.create_user(
-            first_name=validated_data.get('first_name'),
-            last_name=validated_data.get('last_name'),
-            email=validated_data.get('email'),
-            password=validated_data.get('password')
-        )
-
-        user.phone_number = validated_data.get('phone_number', '')
-        user.address = validated_data.get('address', '')
-        user.save()
-
-        otp_code = str(random.randint(100000, 999999))
-        otp_expiration = timezone.now() + timezone.timedelta(minutes=10)
-
+        user = get_user_model().objects.create_user(**validated_data)
         
-        OTP.objects.create(user=user, otp_code=otp_code, expires_at=otp_expiration)
-
-        # Send verification email
-        send_verification_email_task.delay(
-            user_id=user.id,
-            otp_code=otp_code,
-            email_template="accounts/email/verification_email.html",
-            domain="localhost:8000"
-        )
+        # Send the verification email
+        email_subject = 'Verify Your Email'
+        email_template = 'accounts/email/verification_email.html'
+        host = 'http://localhost:8000'  # Update this with your actual domain or host
+        
+        send_verification_email(user, email_subject, email_template, host)
 
         return user
-
 
 class ProfileUpdateSerializer(serializers.ModelSerializer):
     class Meta:
@@ -95,3 +92,4 @@ class ProfileUpdateSerializer(serializers.ModelSerializer):
 
         instance.save()
         return instance
+
