@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import Job, JobResult
+from .models import Job, JobResult, Command
 from accounts.models import OTP, User
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 from accounts.tasks import send_verification_email_task
@@ -10,6 +10,7 @@ from django.db.models import Q
 import random
 
 User = get_user_model()
+
 class JobSerializer(serializers.ModelSerializer):
     price = serializers.DecimalField(max_digits=10, decimal_places=2)
     class Meta:
@@ -78,7 +79,7 @@ class RegisterSerializer(serializers.ModelSerializer):
 class ProfileUpdateSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
-        fields = ['first_name', 'last_name', 'email', 'phone_number', 'address']
+        fields = ['id','first_name', 'last_name', 'email','date_joined','last_login','is_admin','is_staff']
         extra_kwargs = {
             'email': {'required': False},
         }
@@ -87,9 +88,13 @@ class ProfileUpdateSerializer(serializers.ModelSerializer):
         instance.first_name = validated_data.get('first_name', instance.first_name)
         instance.last_name = validated_data.get('last_name', instance.last_name)
         instance.email = validated_data.get('email', instance.email)
-        instance.phone_number = validated_data.get('phone_number', instance.phone_number)
-        instance.address = validated_data.get('address', instance.address)
 
         instance.save()
         return instance
 
+
+class CommandSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Command
+        fields = ['id', 'owner', 'job', 'body', 'created_at', 'updated_at']
+        read_only_fields = ['created_at', 'updated_at']

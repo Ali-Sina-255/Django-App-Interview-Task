@@ -13,11 +13,11 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.views import APIView
 
 
-from .models import Job, JobResult
+from .models import Job, JobResult, Command
 from .forms import CommandForm
 from .filters import JobFilter
 from .paginations import DefaulPagination
-from .serializers import JobSerializer, JobResultSerializer, RegisterSerializer, VerifyEmailSerializer, LoginSerializer,ProfileUpdateSerializer
+from .serializers import JobSerializer, JobResultSerializer, RegisterSerializer, VerifyEmailSerializer, LoginSerializer,ProfileUpdateSerializer,CommandSerializer
 from accounts.tasks import send_verification_email_task_api, execute_command_task
 from django.contrib.auth import get_user_model
 
@@ -28,6 +28,10 @@ from django.contrib import messages
 
 
 User = get_user_model()
+
+class CommandViewSet(viewsets.ModelViewSet):
+    queryset = Command.objects.all()
+    serializer_class = CommandSerializer
 
 
 class JobViewSet(viewsets.ModelViewSet):
@@ -175,6 +179,12 @@ class ProfileUpdateView(APIView):
             return Response({"message": "Profile updated successfully."}, status=status.HTTP_200_OK)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
+class ProfileDeleteView(generics.DestroyAPIView):
+    queryset = User.objects.all()
+    permission_classes = [IsAuthenticated]
+
+    def perform_destroy(self, instance):
+        instance.delete()
 
 def activate(request, uidb64, token):
     try:
@@ -192,3 +202,5 @@ def activate(request, uidb64, token):
     else:
         messages.error(request, "Invalid Activation link.")
         return redirect("register")
+
+
