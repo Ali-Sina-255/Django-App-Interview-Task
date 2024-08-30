@@ -7,6 +7,7 @@ from django.contrib.sites.shortcuts import get_current_site
 from django.core.mail import send_mail
 from django.shortcuts import render, redirect
 from django.utils.http import urlsafe_base64_decode
+from django.contrib import messages
 
 from .forms import UserRegistrationForm
 from .tasks import send_verification_email_task, send_otp_verification_email_task
@@ -145,7 +146,6 @@ def logout_view(request):
     logout(request)
     return redirect('login-user')
 
-
 def forgot_password_view(request):
     if request.method == "POST":
         email = request.POST["email"]
@@ -153,15 +153,18 @@ def forgot_password_view(request):
             user = User.objects.get(email__iexact=email)
             mail_subject = "Reset your password"
             email_template = "accounts/email/reset_password_email.html"
-            send_verification_email(request, user, mail_subject, email_template)
+            send_verification_email_task.delay(
+                user.pk, mail_subject, email_template, request.get_host()
+            )
             send_reset_password_email(request, user)
             messages.success(request, "Your password reset link has been sent to your email address.")
-            return redirect("login")
+            return redirect("login-user")
         else:
             messages.error(request, "Account does not exist.")
             return redirect("forgot_password")
 
     return render(request, "accounts/forgot_password.html")
+
 
 
 def reset_password_validate_view(request, uidb64, token):
@@ -191,7 +194,7 @@ def reset_password_view(request):
             user.is_active = True
             user.save()
             messages.success(request, "Your password has been reset successfully.")
-            return redirect("login")
+            return redirect("login-user")
         else:
             messages.error(request, "Passwords do not match.")
             return redirect("reset_password")
