@@ -211,3 +211,4 @@ def activate_api(request, uidb64, token):
         return redirect("register")
 
 
+

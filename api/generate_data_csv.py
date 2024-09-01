@@ -1,50 +1,47 @@
 import csv
 from datetime import datetime, timedelta
-import pytz
 
-# Define the timezone
-timezone = pytz.timezone('Asia/Kabul')  # Adjust this to your timezone
-
-# Helper function to make datetime aware
-def make_aware(datetime_str):
-    naive_datetime = datetime.strptime(datetime_str, '%Y-%m-%d %H:%M:%S')
-    return timezone.localize(naive_datetime).isoformat()
-
-# Generate a list of 20 data entries
+# Define the data you want to generate
 def generate_data(num_entries):
-    base_date = datetime(2024, 9, 1, 9, 0, 0)
     data = []
-    statuses = ["pending", "in_progress", "completed", "failed"]
+    tags_list = ['Programming', 'Development', 'Design', 'Management', 'Testing']
+    statuses = ['pending', 'in_progress', 'completed', 'failed', 'canceled']
     
     for i in range(1, num_entries + 1):
-        scheduled_time = base_date + timedelta(days=i, hours=i % 24)
-        status = statuses[i % len(statuses)]
+        # Randomly select some tags
+        selected_tags = [tags_list[j % len(tags_list)] for j in range(i % 3 + 1)]  # Select 1 to 3 tags
+        tags = ', '.join(selected_tags)  # Convert list of tags to a comma-separated string
+
         data.append({
-            "user_id": (i % 2) + 1,  # Alternates between 1 and 2
+            "user_id": i % 3 + 1,  # Assuming 3 users for demo
             "name": f"Task {i}",
-            "description": f"Task for testing - entry {i}",
-            "price": 300 + i * 10.50,
-            "scheduled_time": make_aware(scheduled_time.strftime('%Y-%m-%d %H:%M:%S')),
-            "status": status,
-            "result": "Completed successfully" if status == "completed" else "Work in progress",
-            "created_at": make_aware(base_date.strftime('%Y-%m-%d %H:%M:%S')),
-            "updated_at": make_aware(base_date.strftime('%Y-%m-%d %H:%M:%S')),
+            "description": f"Description for task {i}",
+            "price": round(300 + (i % 5) * 50, 2),
+            "tags": tags,
+            "scheduled_time": (datetime.now() + timedelta(days=i)).strftime('%Y-%m-%d %H:%M:%S'),
+            "status": statuses[i % 5],
+            "result": "Work in progress" if statuses[i % 5] == 'in_progress' else "Completed" if statuses[i % 5] == 'completed' else "Failed" if statuses[i % 5] == 'failed' else "Pending",
+            "created_at": datetime.now().strftime('%Y-%m-%d %H:%M:%S'),
+            "updated_at": datetime.now().strftime('%Y-%m-%d %H:%M:%S')
         })
     return data
 
-# Generate 20 rows of data
-data = generate_data(20)
+# Save data to CSV
+def save_to_csv(data):
+    fieldnames = ["user_id", "name", "description", "price", "tags", "scheduled_time", "status", "result", "created_at", "updated_at"]
+    with open('job_data.csv', 'w', newline='') as csvfile:
+        writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
+        
+        # Write the header
+        writer.writeheader()
+        
+        # Write the data rows
+        for row in data:
+            writer.writerow(row)
 
-# Open a new CSV file to write data
-with open('job_data.csv', 'w', newline='') as csvfile:
-    fieldnames = ["user_id", "name", "description", "price", "scheduled_time", "status", "result", "created_at", "updated_at"]
-    writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
-
-    # Write the header
-    writer.writeheader()
-
-    # Write the data rows
-    for row in data:
-        writer.writerow(row)
-
-print("CSV data generated successfully.")
+# Generate data and save to CSV
+if __name__ == "__main__":
+    print("Generating CSV data...")
+    data = generate_data(20)
+    save_to_csv(data)
+    print("CSV data generated successfully.")
