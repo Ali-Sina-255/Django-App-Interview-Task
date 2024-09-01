@@ -193,7 +193,7 @@ class ProfileDeleteView(generics.DestroyAPIView):
         instance.delete()
 
 
-def activate(request, uidb64, token):
+def activate_api(request, uidb64, token):
     try:
         uid = urlsafe_base64_decode(uidb64).decode()
         user = User._default_manager.get(pk=uid)

@@ -17,8 +17,8 @@ def send_verification_email(user, email_subject, email_template, host):
     mail = EmailMessage(email_subject, message, to=[to_email])
     mail.content_subtype = 'html'
     mail.send()
-    
-    
+
+
 
 
 def send_otp_verification_email(request, user, email_subject, email_template, otp):

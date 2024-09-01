@@ -43,7 +43,7 @@ def user_registration(request):
 
             # Send verification email asynchronously using Celery
             mail_subject = "Please Activate your Registration"
-            email_template = "accounts/email/verification_email.html"
+            email_template = "accounts/email/verification_emails.html"
             send_verification_email_task.delay(
                 user.pk, mail_subject, email_template, request.get_host()
             )
@@ -59,7 +59,7 @@ def user_registration(request):
     return render(request, "accounts/register.html", context)
 
 
-def activate(request, uidb64, token):
+def activate_user(request, uidb64, token):
     try:
         uid = urlsafe_base64_decode(uidb64).decode()
         user = User._default_manager.get(pk=uid)

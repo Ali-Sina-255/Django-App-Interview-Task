@@ -32,6 +32,7 @@ INSTALLED_APPS = [
     "django_filters",
     'rest_framework',
     'djoser',
+    'drf_yasg',
     "accounts.apps.AccountsConfig",
     "api.apps.ApiConfig",
     
@@ -169,3 +170,15 @@ EMAIL_PORT = config('EMAIL_PORT',cast=int)
 EMAIL_HOST_USER = config('EMAIL_HOST_USER')
 EMAIL_HOST_PASSWORD = config('EMAIL_HOST_PASSWORD')
 EMAIL_USE_TLS = config('EMAIL_USE_TLS')
+
+
+
+from django.contrib.messages import constants as messages
+
+MESSAGE_TAGS = {
+    messages.DEBUG: "blue",
+    messages.INFO: "blue",
+    messages.SUCCESS: "green",
+    messages.WARNING: "yellow",
+    messages.ERROR: "red",
+}
