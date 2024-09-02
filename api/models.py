@@ -66,7 +66,7 @@ class JobResult(models.Model):
 
 
 class Command(models.Model):
-    owner = models.ForeignKey(UserProfile, on_delete=models.CASCADE, null=True)
+    owner = models.ForeignKey(User, on_delete=models.CASCADE, null=True)
     job = models.ForeignKey(Job, on_delete=models.CASCADE)
     body = models.TextField(null=True, blank=True)
     updated_at = models.DateTimeField(auto_now=True)

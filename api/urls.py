@@ -21,9 +21,11 @@ urlpatterns = [
     path('verify-email/', views.VerifyEmailView.as_view(), name='verify-email'),
     path('login/', views.LoginView.as_view(), name='login'),
     path('logout/', views.LogoutView.as_view(), name='logout-api'),
+    
 	path('jobs/<int:pk>/', views.JobDetailView.as_view(), name='job-detail'),
 	path('jobs/<int:pk>/update/', views.JobUpdateView.as_view(), name='job-update'),
 	path('jobs/<int:pk>/result/', views.JobResultView.as_view(), name='job-result'),
- 
+  	path('api/tags/', views.TagListCreateAPIView.as_view(), name='tag-list-create'),
+    path('api/tags/<int:pk>/', views.TagRetrieveUpdateDestroyAPIView.as_view(), name='tag-retrieve-update-destroy'),
  
  ]

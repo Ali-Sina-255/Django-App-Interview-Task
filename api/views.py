@@ -15,11 +15,11 @@ from rest_framework.permissions import IsAuthenticated, AllowAny
 from rest_framework.views import APIView
 
 
-from .models import Job, JobResult, Command
+from .models import Job, JobResult, Command,Tag
 from .forms import CommandForm
 from .filters import JobFilter
 from .paginations import DefaulPagination
-from .serializers import JobSerializer, JobResultSerializer, RegisterSerializer, VerifyEmailSerializer, LoginSerializer,ProfileUpdateSerializer,CommandSerializer, LogoutSerializer
+from .serializers import JobSerializer, JobResultSerializer, RegisterSerializer, VerifyEmailSerializer, LoginSerializer,ProfileUpdateSerializer,CommandSerializer, LogoutSerializer, TagSerializer
 from accounts.tasks import send_verification_email_task_api, execute_command_task
 from django.contrib.auth import get_user_model
 
@@ -212,3 +212,13 @@ def activate_api(request, uidb64, token):
 
 
 
+class TagListCreateAPIView(generics.ListCreateAPIView):
+    queryset = Tag.objects.all()
+    serializer_class = TagSerializer
+    permission_classes = [IsAuthenticated]
+
+
+class TagRetrieveUpdateDestroyAPIView(generics.RetrieveUpdateDestroyAPIView):
+    queryset = Tag.objects.all()
+    serializer_class = TagSerializer
+    

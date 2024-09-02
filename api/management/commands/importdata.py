@@ -4,8 +4,8 @@ import csv
 from django.apps import apps
 
 
-# Proposed command - python manage.py importdata file_path model_name
-file_path = '/home/ali/Documents/student_data.csv'
+
+
 file_path = '/home/ali/Documents/job_data.csv'
 
 class Command(BaseCommand):

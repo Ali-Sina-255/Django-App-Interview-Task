@@ -2,7 +2,7 @@
 from django.core.management.base import BaseCommand
 from dataentery.models import Student
 
-
+# Proposed command - python manage.py importdata file_path model_name
 class Command(BaseCommand):
     help = 'It will insert data in to the database .'
     

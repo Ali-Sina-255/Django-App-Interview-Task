@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import Job, JobResult, Command
+from .models import Job, JobResult, Command, Tag
 from accounts.models import OTP, User, UserProfile
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 from accounts.tasks import send_verification_email_task
@@ -100,12 +100,22 @@ class ProfileUpdateSerializer(serializers.ModelSerializer):
         instance.save()
         return instance
 
+class UserSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = User
+        fields =['first_name','last_name','email']
 
 class CommandSerializer(serializers.ModelSerializer):
-    owner = ProfileUpdateSerializer()
+    owner = UserSerializer()
     job = JobSerializer() 
 
     class Meta:
         model = Command
         fields = ['id', 'owner', 'job', 'body', 'created_at', 'updated_at']
         read_only_fields = ['created_at', 'updated_at']
+
+
+class TagSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Tag
+        fields = ['id', 'name', 'create_at']
